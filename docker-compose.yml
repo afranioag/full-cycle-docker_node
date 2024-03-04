@@ -1,23 +1,5 @@
 version: '3'
 services:
-  node-app:
-    build: ./node-app
-    container_name: node
-    networks:
-      - app-network
-    depends_on:
-      - db
- 
-  nginx:
-    build: ./nginx
-    container_name: nginx
-    ports:
-      - "80:80"
-    depends_on:
-      - node-app
-    networks:
-      - app-network
-    
   db:
     image: mysql:5.7
     command: --innodb-use-native-aio=ON
@@ -30,8 +12,35 @@ services:
     environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
     networks:
       - app-network
+
+  node-app:
+    build: ./node-app
+    container_name: node
+    volumes:
+      - ./usr/src/app:/node-app
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+ 
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - node-app
+    networks:
+      - app-network
+  
 
 networks:
   app-network:

@@ -2,7 +2,7 @@ FROM node:15
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY index.js /usr/src/app
 
 RUN npm init -y
 
