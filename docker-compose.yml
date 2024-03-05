@@ -23,8 +23,9 @@ services:
   node-app:
     build: ./node-app
     container_name: node
+    entrypoint: sh -c "npm init -y && npm install mysql && npm install express && node index.js"
     volumes:
-      - ./usr/src/app:/node-app
+      - ./node-app:/usr/src/app
     networks:
       - app-network
     depends_on:
@@ -41,6 +42,5 @@ services:
     networks:
       - app-network
   
-
 networks:
   app-network:
